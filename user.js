@@ -3,10 +3,11 @@
 // const Router=express("express");
           // OR
   const {Router}=require('express');
+  const bcrypt=require("bcrypt");
   const userRouter=Router();
   const {userModel,purchaseModel,courseModel}=require('./db');
   const jwt=require("jsonwebtoken");
-  const JWT_SECRET=Firebolt710;
+  const JWT_SECRET="always710";
 
 //this app handles all the routers requests which comes to "user" router
 
@@ -18,28 +19,46 @@
 //matched that will be executed
 
 
-userRouter.post("/signup",async function(req,res){
-      const {email,password,firstName,lastName}=req.body;  //TODO adding zod validation
-        //hashing the password
 
-        await userModel.create({
-            email:email,
-            password:password,
-            firstname:firstName,
-            lastName:lastName
-        })
+userRouter.post("/signup", async function(req, res) {
+    const { email, password, firstName, lastName } = req.body;
+    //TODO adding zod validation
 
-    res.json({
-        message:"signup succeded"
-    })
-})
+    try {
+        // Check if user already exists
+        const existingUser = await userModel.findOne({ email: email });
+        if (existingUser) {
+            return res.status(400).json({ message: "User Already Exists" });
+        }
 
+        // Hash the password
+        const hashedPassword = await bcrypt.hash(password, 5);
+        
+        // Create new user
+        const newUser = await userModel.create({
+            email: email,
+            password: hashedPassword,
+            firstName: firstName,  
+            lastName: lastName
+        });
+
+        res.status(201).json({ message: "You are signed up", userId: newUser._id });
+    } catch (error) {
+        console.error("Signup error:", error);
+        res.status(500).json({ message: "Error during signup", error: error.message });
+    }
+});
+
+
+
+
+     //SIGNIN ENDPOINT
 userRouter.post("/signin",async function(req,res){
     const {email,password}=req.body;
 
    const user=await userModel.findOne({
           email:email,
-          password:password
+        
    })
 
    if(user){
@@ -60,7 +79,7 @@ userRouter.post("/signin",async function(req,res){
     
 })
 
-userRouter.get('purchases',userMiddleware,async function(req,res){
+userRouter.get('purchases',function(req,res){
     res.json({
         message:"signup endpoint"
     })

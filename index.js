@@ -12,9 +12,9 @@ const {adminRouter}=require('./admin')
 
 
 //main /user router and main /course router
-app.use('api/v1//user',userRouter);
-app.use('api/v1/admin',adminRouter);
-app.use('api/v1/course',courseRouter);
+app.use("/api/v1/user",userRouter);
+app.use('/api/v1/admin',adminRouter);
+app.use('/api/v1/course',courseRouter);
 
 
 //app.listen(3000);
@@ -33,6 +33,12 @@ async function main(){
 }
 
 main();
+
+app.get('/',function(req,res){
+    res.json({
+        message:"Hello From Routingg Project"
+    })
+})
 
 // now what will happen is index.js file starts to execute at the bottom main function will be called an d main function
 //starts to execute in the main function whem te control goes to await it waits there only until response comes from
